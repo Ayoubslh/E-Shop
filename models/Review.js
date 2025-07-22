@@ -15,7 +15,7 @@ const ReviewSchema = new mongoose.Schema(
     },
     comment: { type: String, trim: true },
   },
-  { timestamps: true } // Automatically adds `createdAt` and `updatedAt`
+  { timestamps: true } 
 );
 
 // Prevent a user from reviewing the same item multiple times

@@ -9,6 +9,33 @@ const OrderSchema = new mongoose.Schema({
   orderid:{
     type:String,
   },
+  totalPrice: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  paymentMethod: {
+    type: String,
+    enum: ["creditCard", "paypal", "onDelivery"],
+    required: true,
+  },
+  shippingAddress: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    zip: { type: String, required: true },
+    country: { type: String, required: true },
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return /\d{10}/.test(v);
+      },
+      message: "Phone number must be 10 digits",
+    },
+  },
+  deliveryDate: { type: Date, required: true },
 
   status: {
     type: String,

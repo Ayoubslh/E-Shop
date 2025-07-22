@@ -1,5 +1,6 @@
 const controlfactory = require('./../utils/handlerFactory');
-const Item= require('./../models/Item');
+const mongoose = require('mongoose');
+const Item =  require('./../models/Item');
 const AppError = require('./../utils/appError');
 const Review = require('./../models/Review');
 const apiFeatures = require('./../utils/apiFeatures');
@@ -28,10 +29,21 @@ exports.getAllItems = async (req, res) => {
     }
 }
 
+exports.createItem = async (req, res, next) => {
+    try {
+        const item = await Item.create(req.body);
+        res.status(201).json({
+            status: 'success',
+            data: {
+                item
+            }
+        });
+    } catch (err) {
+        next(new AppError(err.message, 400));
+    }
+}
 
 
-
-exports.createItem = controlfactory.create(Item);
 exports.getItem = controlfactory.getOne(Item,'reviews');
 exports.updateItem = controlfactory.updateOne(Item);
 exports.deleteItem = controlfactory.deleteOne(Item);

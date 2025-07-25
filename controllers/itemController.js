@@ -4,6 +4,7 @@ const Item =  require('./../models/Item');
 const AppError = require('./../utils/appError');
 const Review = require('./../models/Review');
 const apiFeatures = require('./../utils/apiFeatures');
+const {uploadImage} = require('./../utils/cloudinaryUpload');
 
 
 exports.getAllItems = async (req, res) => {
@@ -31,7 +32,22 @@ exports.getAllItems = async (req, res) => {
 
 exports.createItem = async (req, res, next) => {
     try {
+        let imageUrl;
+        if (req.file) {
+            const result = await uploadImage(req.file.buffer, {
+                folder: 'items'
+            });
+            imageUrl = result.secure_url;
+        }
+
+        if (imageUrl) {
+            req.body.image = imageUrl;
+        }
+
         const item = await Item.create(req.body);
+
+        await item.populate('reviews');
+
         res.status(201).json({
             status: 'success',
             data: {

@@ -5,7 +5,7 @@ const {Server} = require('socket.io');
 
 
 
-
+const port = process.env.PORT || 3000;
 
 
 
@@ -31,7 +31,7 @@ mongoose
   .connect(DB, )
   .then(() => console.log('DB connection successful!'));
 
-const port = process.env.PORT || 3000;
+
 
 
 io.on('connection', (socket) => {

@@ -32,7 +32,7 @@ exports.createOrder = async (req, res, next) => {
   try {
     const userId = req.user.id;
     if (!userId) return next(new AppError("User not found", 404));
-    const orderid = crypto.randomBytes(4).toString("hex").toUpperCase();
+   
 
     const { items, totalPrice, deliveryDate, shippingAddress } = req.body;
 
@@ -59,7 +59,6 @@ exports.createOrder = async (req, res, next) => {
       totalPrice,
       deliveryDate,
       shippingAddress,
-      orderid
     });
 
     res.status(201).json({

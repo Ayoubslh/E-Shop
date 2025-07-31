@@ -6,10 +6,11 @@ exports.getOrders = async (req, res, next) => {
         const userId = req.user.id; ;
         if (!userId) return next(new AppError("You are not authorized", 401));
         const orders = await Order.find({user: userId })
-        .populate({
-          path: "items",
-          select: "-__v -_id -reviews -description -image -stock -createdAt " 
-        })
+.populate({
+  path: "items.product",
+  select: "name brand image price",
+})
+
         .populate({
           path: "user",
           select: "-__v -password -updatedAt -_id -passwordResetToken -passwordResetExpires -createdAt -role"
@@ -49,9 +50,10 @@ exports.getOrder = async (req, res, next) => {
         const userId = req.body.user;
         if (!userId) return next(new AppError("You are not authorized", 401));
         const order = await Order.findOne({ user: userId, _id: req.params.id }) .populate({
-            path: "items",
-            select: "-__v -_id -reviews -description -image -stock -createdAt " 
-          })
+  path: "items.product",
+  select: "name brand image price",
+})
+
           .populate({
             path: "user",
             select: "-__v -password -updatedAt -_id -passwordResetToken -passwordResetExpires -createdAt -role"

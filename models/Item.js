@@ -6,55 +6,79 @@ const ItemSchema = new mongoose.Schema({
   image: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
   description: { type: String, required: true },
+  category: {
+    type: String,
+    enum: ["phone", "smartwatch", "laptop"],
+    required: true,
+  },
   specs: {
     body: {
-      dimensions: { type: String, required: true },
-      weight: { type: String, required: true },
-      build: { type: String, required: true },
-      sim: { type: String, required: true },
+      dimensions: { type: String },
+      weight: { type: String },
+      build: { type: String },
+      sim: { type: String },
+      waterResistant: { type: String }, // For smartwatch
     },
     display: {
-      type: { type: String, required: true },
-      size: { type: String, required: true },
-      resolution: { type: String, required: true },
+      type: { type: String },
+      size: { type: String },
+      resolution: { type: String },
+      refreshRate: { type: String }, // For laptops
+      alwaysOn: { type: Boolean },    // For smartwatches
     },
     platform: {
-      os: { type: String, required: true },
-      chipset: { type: String, required: true },
-      cpu: { type: String, required: true },
-      gpu: { type: String, required: true },
+      os: { type: String },
+      chipset: { type: String },
+      cpu: { type: String },
+      gpu: { type: String },
     },
     memory: {
-      internal: { type: String, required: true },
-      cardSlot: { type: String, required: true },
+      internal: { type: String },
+      cardSlot: { type: String },
+      ram: { type: String },          // For laptops
+      storageType: { type: String },  // SSD, HDD
     },
     mainCamera: {
       triple: { type: String },
       quad: { type: String },
       dual: { type: String },
-      features: { type: String, required: true },
-      video: { type: String, required: true },
+      features: { type: String },
+      video: { type: String },
     },
     selfieCamera: {
-      single: { type: String, required: true },
-      features: { type: String, required: true },
-      video: { type: String, required: true },
+      single: { type: String },
+      features: { type: String },
+      video: { type: String },
     },
     battery: {
-      type: { type: String, required: true },
-      charging: { type: String, required: true },
+      type: { type: String },
+      charging: { type: String },
+      batteryLife: { type: String },  // For laptops/smartwatches
     },
     features: {
-      sensors: { type: String, required: true },
-      audio: { type: String, required: true },
+      sensors: { type: String },
+      audio: { type: String },
     },
     connectivity: {
-      wlan: { type: String, required: true },
-      bluetooth: { type: String, required: true },
-      gps: { type: String, required: true },
-      nfc: { type: String, required: true },
-      usb: { type: String, required: true },
+      wlan: { type: String },
+      bluetooth: { type: String },
+      gps: { type: String },
+      nfc: { type: String },
+      usb: { type: String },
     },
+    ports: {
+      usbC: { type: String },
+      thunderbolt: { type: String },
+      audioJack: { type: String },
+      hdmi: { type: String },
+      sdSlot: { type: String },
+    },
+    compatibility: {
+      osSupport: { type: String },
+      companionApp: { type: String },
+    },
+    keyboard: { type: String },   // For laptop
+    trackpad: { type: String },   // For laptop
   },
   stock: { type: Number, required: true, min: 0 },
   averageRatings: { type: Number, default: 0 },
@@ -62,6 +86,7 @@ const ItemSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Virtuals for reviews and computed average rating
 ItemSchema.virtual("reviews", {
   ref: "Review",
   localField: "_id",
@@ -76,4 +101,4 @@ ItemSchema.virtual("averageRating").get(function () {
 });
 
 const Item = mongoose.model("Item", ItemSchema);
-module.exports = Item
+module.exports = Item;

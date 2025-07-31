@@ -8,14 +8,20 @@ exports.getCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
     if (!userId) return next(new AppError("You are not authorized", 401));
+
     const cart = await Cart.findOne({ user: userId })
-      .populate({path:"items",select:"-__v -createdAt -updatedAt"})
+      .populate({
+        path: "items.product", 
+        select: "name brand image price", 
+      })
       .populate({
         path: "user",
         select:
           "-__v -password -updatedAt -_id -passwordResetToken -passwordResetExpires -createdAt -role",
       });
+
     if (!cart) return next(new AppError("Cart not found", 404));
+
     res.status(200).json({
       status: "success",
       data: {
@@ -26,6 +32,7 @@ exports.getCart = async (req, res, next) => {
     next(new AppError(err.message, 400));
   }
 };
+
 
 exports.addItemToCart = async (req, res, next) => {
   try {
@@ -42,8 +49,7 @@ exports.addItemToCart = async (req, res, next) => {
         user: userId,
         items: [{ product: req.body.item, quantity }],
       });
-      newCart.items.push({ product: req.body.item, quantity });
-      await newCart.save();
+  
       return res.status(201).json({
         status: "success",
         data: {
@@ -72,7 +78,7 @@ exports.addItemToCart = async (req, res, next) => {
 exports.deleteItemFromCart = async (req, res, next) => {
   try {
     if (!req.body.userId) req.body.userId = req.user.id;
-    const cart = await Cart.findOne({ user: req.body.userId });
+    const cart = await Cart.findOne({ user: req.body.userId , items: { $elemMatch: { product: req.body.productId } } });
     if (!cart) {
       return res.status(404).json({
         status: "fail",

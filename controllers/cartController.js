@@ -33,37 +33,52 @@ exports.getCart = async (req, res, next) => {
   }
 };
 
-
 exports.addItemToCart = async (req, res, next) => {
   try {
-    if (!req.body.item) req.body.item = req.params.itemid;
     const userId = req.user.id;
-    if (!userId) return next(new AppError("You are not authorized ", 403));
+    if (!userId) return next(new AppError("You are not authorized", 403));
 
-    const quantity = req.body.quantity || 1;
-    const product = await Product.findById(req.body.item);
-    if (!product) return next(new AppError("Product not found", 404));
-    const cart = await Cart.findOne({ userId: userId });
+    const items = req.body.items;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return next(new AppError("Items must be a non-empty array", 400));
+    }
+
+    // Validate all products exist before modifying the cart
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return next(new AppError(`Product with ID ${item.product} not found`, 404));
+      }
+    }
+
+    // Find or create user's cart
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) {
-      const newCart = await Cart.create({
+      cart = await Cart.create({
         user: userId,
-        items: [{ product: req.body.item, quantity }],
-      });
-  
-      return res.status(201).json({
-        status: "success",
-        data: {
-          cart: newCart,
-        },
+        items: [],
       });
     }
-    const item = cart.items.find((item) => item.product == req.body.productId);
-    if (item) {
-      item.quantity += quantity;
-    } else {
-      cart.items.push({ product: req.body.productid, quantity });
+
+    // Loop through items and update cart
+    for (const item of items) {
+      const productId = item.product;
+      const quantity = item.quantity || 1;
+
+      const existingItem = cart.items.find(
+        (i) => i.product.toString() === productId
+      );
+
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.items.push({ product: productId, quantity });
+      }
     }
+
     await cart.save();
+
     res.status(200).json({
       status: "success",
       data: {
@@ -74,6 +89,7 @@ exports.addItemToCart = async (req, res, next) => {
     next(new AppError(err.message, 400));
   }
 };
+
 
 exports.deleteItemFromCart = async (req, res, next) => {
   try {

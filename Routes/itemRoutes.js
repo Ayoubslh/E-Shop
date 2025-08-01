@@ -10,8 +10,8 @@ router
   .route("/")
   .get(itemController.getAllItems)
   .post(
-    // authcontroller.protect,
-    // authcontroller.restrictTo("admin"),
+    authcontroller.protect,
+     authcontroller.restrictTo("admin"),
     upload.single('image'), // Add multer middleware
     itemController.createItem
   );

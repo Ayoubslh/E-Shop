@@ -1,5 +1,6 @@
 const Order = require('./../models/Order');
 const AppError = require('../utils/appError');
+const Item = require('./../models/Item');
 
 exports.getOrders = async (req, res, next) => {
     try {
@@ -75,12 +76,12 @@ exports.createOrder = async (req, res, next) => {
 
 exports.getOrder = async (req, res, next) => {
     try {
-        const userId = req.body.user;
-        if (!userId) return next(new AppError("You are not authorized", 401));
-        const order = await Order.findOne({ user: userId, _id: req.params.id }) .populate({
-  path: "items.product",
-  select: "name brand image price",
-})
+       
+        const order = await Order.findOne({ user: userId, _id: req.params.id })
+          .populate({
+            path: "items.product",
+            select: "name brand image price",
+          })
 
           .populate({
             path: "user",
@@ -100,21 +101,45 @@ exports.getOrder = async (req, res, next) => {
 }
 
 exports.updateOrder = async (req, res, next) => {
-    try {
-        const userId = req.body.user;
-        if (!userId) return next(new AppError("You are not authorized", 401));
-        const order = await Order.findOneAndUpdate({ user: userId, _id: req.params.id }, req.body, { new: true });
-        if (!order) return next(new AppError('Order not found', 404));
-        res.status(200).json({
-            status: 'success',
-            data: {
-                order
-            }
-        });
-    } catch (err) {
-        next(new AppError(err.message, 400));
+  try {
+    const userId = req.user._id; // Make sure you have userId defined
+
+    const order = await Order.findOneAndUpdate(
+      { user: userId, _id: req.params.id },
+      req.body,
+      { new: true }
+    )
+      .populate({
+        path: "items.product",
+        select: "name brand image price",
+      })
+      .populate({
+        path: "user",
+        select: "-__v -password -updatedAt -_id -passwordResetToken -passwordResetExpires -createdAt -role",
+      })
+      .select("-__v -updatedAt");
+
+    if (!order) return next(new AppError("Order not found", 404));
+
+    for (const item of order.items) {
+      await Item.findByIdAndUpdate(
+        item.product._id,
+        { $inc: { stock: -item.quantity } },
+        { new: true }
+      );
     }
-}
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        order,
+      },
+    });
+  } catch (err) {
+    next(new AppError(err.message, 400));
+  }
+};
+
 
 exports.deleteOrder = async (req, res, next) => {
     try {

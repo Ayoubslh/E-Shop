@@ -2,8 +2,9 @@ const express = require("express");
 const itemController = require("./../controllers/itemController");
 const reviewRouter = require("./reviewRoutes");
 const authcontroller = require("./../controllers/authController");
-const upload = require("./../utils/multerConfig");
 const router = express.Router();
+const upload = require("./../utils/multerConfig");
+
 
 router
   .route("/")

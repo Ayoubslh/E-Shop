@@ -4,6 +4,7 @@ const userRoutes = require('./Routes/userRoutes');
 const reviewRoutes = require('./Routes/reviewRoutes');
 const cartRoutes = require('./Routes/cartRoutes');
 const orderRoutes = require('./Routes/orderRoutes');
+const favouriteRoutes = require('./Routes/favouriteRoutes');
 
 const cors = require('cors');
 
@@ -20,6 +21,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/favourites', favouriteRoutes);
 app.use(globalErrorHandler);
 
 

@@ -11,7 +11,7 @@ const cors = require('cors');
 const globalErrorHandler = require('./controllers/errorController');
 const app = express();
 app.use(cors({
-  origin: ["http://localhost:5173",'https://hptecs.vercel.app'], // Replace with your frontend origin for better security
+  origin: '*', // Replace with your frontend origin for better security
   methods: ["GET", "POST", "PUT","PATCH", "DELETE"], // Allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));

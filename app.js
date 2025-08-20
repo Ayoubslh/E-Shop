@@ -10,12 +10,14 @@ const cors = require('cors');
 
 const globalErrorHandler = require('./controllers/errorController');
 const app = express();
-app.use(express.json());
 app.use(cors({
   origin: ["http://localhost:5173",'https://hptecs.vercel.app'], // Replace with your frontend origin for better security
   methods: ["GET", "POST", "PUT","PATCH", "DELETE"], // Allowed methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
 }));
+app.set('trust proxy',1);
+app.use(express.json());
+
 app.use('/api/v1/items', itemRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
